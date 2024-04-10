@@ -7,7 +7,8 @@ import (
 	"strconv"
 	"sync"
 	"time"
-
+	// "reflect"
+	"github.com/google/uuid"
 	"github.com/bojand/ghz/load"
 	"github.com/bojand/ghz/protodesc"
 	"github.com/jhump/protoreflect/desc"
@@ -31,10 +32,14 @@ const maxResult = 1000000
 
 // result of a call
 type callResult struct {
+	id        uuid.UUID
 	err       error
 	status    string
 	duration  time.Duration
 	timestamp time.Time
+	databroker_timestamp time.Time
+	cpu_utilisation float64
+	mem_utilisation float64
 }
 
 // Requester is used for doing the requests
@@ -62,6 +67,16 @@ type Requester struct {
 
 // NewRequester creates a new requestor from the passed RunConfig
 func NewRequester(c *RunConfig) (*Requester, error) {
+	// fmt.Println("---------------->>NewRequester>>>")
+	// rpcStatsType := reflect.TypeOf(c)
+	// if rpcStatsType.Kind() == reflect.Ptr {
+	// 	rpcStatsType = rpcStatsType.Elem()
+	// }
+	// for i := 0; i < rpcStatsType.NumField(); i++ {
+	// 	field := rpcStatsType.Field(i)
+	// 	fmt.Println(field.Name)
+	// }
+	// fmt.Println(string(c.metadata))
 
 	var err error
 	var mtd *desc.MethodDescriptor
@@ -76,6 +91,7 @@ func NewRequester(c *RunConfig) (*Requester, error) {
 		stubs:      make([]grpcdynamic.Stub, 0, c.nConns),
 	}
 
+	// fmt.Printf("%+v",c)
 	if c.proto != "" {
 		mtd, err = protodesc.GetMethodDescFromProto(c.call, c.proto, c.importPaths)
 	} else if c.protoset != "" {
@@ -118,6 +134,8 @@ func NewRequester(c *RunConfig) (*Requester, error) {
 	}
 
 	md := mtd.GetInputType()
+
+	fmt.Printf("%+v",md)
 	payloadMessage := dynamic.NewMessage(md)
 	if payloadMessage == nil {
 		return nil, fmt.Errorf("no input type of method: %s", mtd.GetName())
@@ -160,6 +178,10 @@ func (b *Requester) Run() (*Report, error) {
 		return nil, err
 	}
 
+	// fmt.Printf("%+v\n", cc)
+
+	// fmt.Println(string(c.metadata))
+
 	start := time.Now()
 
 	b.lock.Lock()
@@ -170,6 +192,7 @@ func (b *Requester) Run() (*Report, error) {
 		stub := grpcdynamic.NewStub(cc[n])
 		b.stubs = append(b.stubs, stub)
 	}
+	// fmt.Printf("results------->>>>>>>>>> %+v\n", b)
 
 	b.reporter = newReporter(b.results, b.config)
 	b.lock.Unlock()
@@ -177,6 +200,7 @@ func (b *Requester) Run() (*Report, error) {
 	go func() {
 		b.reporter.Run()
 	}()
+	fmt.Println("done--------------")
 
 	wt := createWorkerTicker(b.config)
 
@@ -187,6 +211,17 @@ func (b *Requester) Run() (*Report, error) {
 	report := b.Finish()
 
 	b.closeClientConns()
+	// fmt.Println("------><<><>>%+v", report)
+
+	// fmt.Println("---------------->>NewRequester>>>")
+	// rpcStatsTyp := reflect.TypeOf(report)
+	// if rpcStatsTyp.Kind() == reflect.Ptr {
+	// 	rpcStatsTyp = rpcStatsTyp.Elem()
+	// }
+	// for i := 0; i < rpcStatsTyp.NumField(); i++ {
+	// 	field := rpcStatsTyp.Field(i)
+	// 	// fmt.Println(field.Name)
+	// }
 
 	return report, err
 }
@@ -245,6 +280,8 @@ func (b *Requester) openClientConns() ([]*grpc.ClientConn, error) {
 	if len(b.conns) == b.config.nConns {
 		return b.conns, nil
 	}
+
+	fmt.Printf("-----------------<<<<<<<<<<<<%#v",b.config)
 
 	for n := 0; n < b.config.nConns; n++ {
 		c, err := b.newClientConn(true)
@@ -326,12 +363,12 @@ func (b *Requester) newClientConn(withStatsHandler bool) (*grpc.ClientConn, erro
 
 	if withStatsHandler {
 		sh := &statsHandler{
-			id:      len(b.handlers),
+			id:      uuid.New(),
 			results: b.results,
 			hasLog:  b.config.hasLog,
 			log:     b.config.log,
 		}
-
+		fmt.Printf("ssshhh---------->>>>>><<<<<<<<%#v\n", sh.results)
 		b.handlers = append(b.handlers, sh)
 
 		opts = append(opts, grpc.WithStatsHandler(sh))

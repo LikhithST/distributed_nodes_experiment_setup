@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"sort"
 	"time"
+	"fmt"
+	"github.com/google/uuid"
 )
 
 // Reporter gathers all the results
@@ -132,10 +134,14 @@ type Bucket struct {
 
 // ResultDetail data for each result
 type ResultDetail struct {
-	Timestamp time.Time     `json:"timestamp"`
-	Latency   time.Duration `json:"latency"`
-	Error     string        `json:"error"`
-	Status    string        `json:"status"`
+	ID      uuid.UUID
+	Timestamp time.Time     		`json:"timestamp"`
+	Latency   time.Duration 		`json:"latency"`
+	Error     string        		`json:"error"`
+	Status    string        		`json:"status"`
+	Databroker_timestamp time.Time 	`json:"databroker_timestamp"`
+	CPU_utilisation float64 		`json:"cpu"`
+	MEM_utilisation float64 		`json:"mem"`
 }
 
 func newReporter(results chan *callResult, c *RunConfig) *Reporter {
@@ -175,13 +181,22 @@ func (r *Reporter) Run() {
 
 		if len(r.details) < maxResult {
 			r.details = append(r.details, ResultDetail{
+				ID: res.id,
 				Latency:   res.duration,
 				Timestamp: res.timestamp,
 				Status:    res.status,
 				Error:     errStr,
+				Databroker_timestamp: res.databroker_timestamp,
+				CPU_utilisation: res.cpu_utilisation,
+				MEM_utilisation: res.mem_utilisation,
 			})
+
+			
 		}
 	}
+	fmt.Println("running-2-----------------------")
+	// fmt.Printf("------------------->>>>>ress>>>>\n")
+	// fmt.Printf("%+v\n", r)
 	r.done <- true
 }
 
