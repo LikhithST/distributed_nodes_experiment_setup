@@ -3,12 +3,14 @@ package runner
 import (
 	"context"
 	"sync"
+	// "log"
 	// "math/rand"
 	"time"
 	"fmt"
+	"google.golang.org/grpc/metadata"
 	// "reflect"
 	// "encoding/json"
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 	"github.com/docker/docker/api/types"
 	// "github.com/docker/docker/client"
 	"google.golang.org/grpc/stats"
@@ -18,8 +20,8 @@ import (
 // StatsHandler is for gRPC stats
 type statsHandler struct {
 	results chan *callResult
-
-	id     uuid.UUID
+	isHead chan time.Time
+	id     int
 	hasLog bool
 	log    Logger
 
@@ -27,21 +29,11 @@ type statsHandler struct {
 	ignore bool
 }
 
+type MutableObject struct {
+    InMetadata metadata.MD // Example mutable field
+}
 // HandleConn handle the connection
 func (c *statsHandler) HandleConn(ctx context.Context, cs stats.ConnStats) {
-
-// ----------------------prints cs------------------------------
-
-	// fmt.Println("---------------->>HandleConn>>>")
-	// rpcStatsType := reflect.TypeOf(cs)
-	// if rpcStatsType.Kind() == reflect.Ptr {
-	// 	rpcStatsType = rpcStatsType.Elem()
-	// }
-	// for i := 0; i < rpcStatsType.NumField(); i++ {
-	// 	field := rpcStatsType.Field(i)
-	// 	fmt.Println(field.Name)
-	// }
-// ----------------------prints cs------------------------------
 
 	// no-op
 }
@@ -49,19 +41,6 @@ func (c *statsHandler) HandleConn(ctx context.Context, cs stats.ConnStats) {
 // TagConn exists to satisfy gRPC stats.Handler.
 func (c *statsHandler) TagConn(ctx context.Context, cti *stats.ConnTagInfo) context.Context {
 	// no-op
-// ----------------------prints cti------------------------------
-
-	// fmt.Println("---------------->>TagConn>>>")
-
-	// rpcStatsType := reflect.TypeOf(cti)
-	// if rpcStatsType.Kind() == reflect.Ptr {
-	// 	rpcStatsType = rpcStatsType.Elem()
-	// }
-	// for i := 0; i < rpcStatsType.NumField(); i++ {
-	// 	field := rpcStatsType.Field(i)
-	// 	fmt.Println(field.Name)
-	// }
-// ----------------------prints cti------------------------------
 
 	return ctx
 }
@@ -86,73 +65,25 @@ func calculateMemoryPercentage(stat *types.StatsJSON) float64 {
 // HandleRPC implements per-RPC tracing and stats instrumentation.
 func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 	switch rs := rs.(type) {
-
+		
 	case *stats.InHeader:
+		var headerValue metadata.MD 
 		 // You can access the `InHeader` field from the `s` object to get the received headers.
 		 if rs.Client {
-			fmt.Printf("Received headers for method------------------<<<<<<<<<<<<<<<inheader>>>>>>>>>>>>>>>>><%+v ",rs.Header)
-		// 	ign := false
-		// c.lock.RLock()
-		// ign = c.ignore
-		// c.lock.RUnlock()
-		// if !ign {
-			
-			c.results <- &callResult{id:c.id, databroker_timestamp: time.Now()}
-		// }
+		ign := false
+		c.lock.RLock()
+		ign = c.ignore
+		c.lock.RUnlock()
+		if !ign {
+			headerValue = rs.Header
+
+			if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
+                header.InMetadata = headerValue
+            }
+		}
 		}
 
 	case *stats.End:
-// ----------------------prints rs------------------------------
-		// fmt.Printf("%+v\n", rs)
-		// rpcStatsType := reflect.TypeOf(rs)
-		// if rpcStatsType.Kind() == reflect.Ptr {
-		// 	rpcStatsType = rpcStatsType.Elem()
-		// }
-		// for i := 0; i < rpcStatsType.NumField(); i++ {
-		// 	field := rpcStatsType.Field(i)
-		// 	fmt.Println(field.Name)
-		// }
-		// fmt.Printf("---------------->>end>>>>>>>%+v", rs.EndTime)
-		// fmt.Printf("---------------->>>>>>>>>%+v", rs.BeginTime)
-		// fmt.Printf("---------------->>>>>>>>>%#v", rs.Trailer)
-		// fmt.Println("---------------->>>>>>>>>%d",c.id)
-
-		fmt.Println("Processing")
-		
-
-// ----------------------prints rs------------------------------
-
-		// cli, err := client.NewClientWithOpts(client.FromEnv)
-		// if err != nil {
-		// 	panic(err)
-		// }
-
-		// Specify the Docker ID for which you want to access the stats
-		// containerID := "efa6bbff8645"
-
-		// Get the Docker stats for the specified container
-		// stats, err := cli.ContainerStats(context.Background(), containerID, false)
-		// if err != nil {
-		// 	panic(err)
-		// }
-
-		// defer stats.Body.Close()
-
-		// var stat types.StatsJSON
-		// if err := json.NewDecoder(stats.Body).Decode(&stat); err != nil {
-		// 	panic(err)
-		// }
-
-		// cpu_utilisation := calculateCPUPercentage(&stat)
-		// mem_utilisation := calculateMemoryPercentage(&stat)
-		// fmt.Printf("CPU Usage: %.2f%%\n", cpu_utilisation)
-		// fmt.Printf("Memory Usage: %.2f%%\n", mem_utilisation)
-		// err = cli.Close()
-		// if err != nil {
-		// 	panic(err)
-		// }
-
-		
 
 		ign := false
 		c.lock.RLock()
@@ -160,7 +91,6 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 		c.lock.RUnlock()
 
 		if !ign {
-
 			duration := rs.EndTime.Sub(rs.BeginTime)
 
 			var st string
@@ -169,37 +99,18 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 				st = s.Code().String()
 			}
 
-			// c.lock.RLock()
+			// Retrieve the header value from the context
+			
+			fmt.Println("------------->>>>>>>>>",ctx.Value("InHeader"))
 
-				for elem := range c.results {
-					fmt.Println(elem.id)
-					if elem.id == c.id {
-						fmt.Println("yes")
-						fmt.Println(elem.id)
-						elem.err = rs.Error
-						elem.status = st
-						elem.duration = duration
-						elem.timestamp = rs.EndTime
-						elem.cpu_utilisation = 110
-						elem.mem_utilisation = 10
-					}
-					c.results <- elem
+			c.results <- &callResult{rs.Error, st, duration,time.Unix(int64(ctx.Value("InHeader")),0), rs.EndTime,10,10}
 
-				}
-
-			// 	c.lock.RUnlock()
-
-
-			// c.results <- &callResult{id:c.id, databroker_timestamp: time.Now()}
 			if c.hasLog {
 				c.log.Debugw("Received RPC Stats",
 					"statsID", c.id, "code", st, "error", rs.Error,
 					"duration", duration, "stats", rs)
 			}
 		}
-		// else{
-		// 	fmt.Println("Ignored")
-		// }
 	}
 
 }
@@ -213,5 +124,9 @@ func (c *statsHandler) Ignore(val bool) {
 
 // TagRPC implements per-RPC context management.
 func (c *statsHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) context.Context {
+	
+	ctx = context.WithValue(ctx, "InHeader", &MutableObject{})
+	
+
 	return ctx
 }

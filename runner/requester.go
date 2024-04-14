@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 	// "reflect"
-	"github.com/google/uuid"
 	"github.com/bojand/ghz/load"
 	"github.com/bojand/ghz/protodesc"
 	"github.com/jhump/protoreflect/desc"
@@ -32,7 +31,6 @@ const maxResult = 1000000
 
 // result of a call
 type callResult struct {
-	id        uuid.UUID
 	err       error
 	status    string
 	duration  time.Duration
@@ -363,7 +361,7 @@ func (b *Requester) newClientConn(withStatsHandler bool) (*grpc.ClientConn, erro
 
 	if withStatsHandler {
 		sh := &statsHandler{
-			id:      uuid.New(),
+			id:      len(b.handlers),
 			results: b.results,
 			hasLog:  b.config.hasLog,
 			log:     b.config.log,

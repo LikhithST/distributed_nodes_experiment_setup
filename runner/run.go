@@ -5,6 +5,7 @@ import (
 	"os/signal"
 	"runtime"
 	"time"
+	// "fmt"
 )
 
 // Run executes the test
@@ -50,6 +51,6 @@ func Run(call, host string, options ...Option) (*Report, error) {
 	}
 
 	rep, err := reqr.Run()
-
+	// fmt.Printf("%+v\n", rep)
 	return rep, err
 }

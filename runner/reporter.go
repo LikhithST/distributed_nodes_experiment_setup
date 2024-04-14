@@ -5,7 +5,6 @@ import (
 	"sort"
 	"time"
 	"fmt"
-	"github.com/google/uuid"
 )
 
 // Reporter gathers all the results
@@ -134,7 +133,6 @@ type Bucket struct {
 
 // ResultDetail data for each result
 type ResultDetail struct {
-	ID      uuid.UUID
 	Timestamp time.Time     		`json:"timestamp"`
 	Latency   time.Duration 		`json:"latency"`
 	Error     string        		`json:"error"`
@@ -181,7 +179,6 @@ func (r *Reporter) Run() {
 
 		if len(r.details) < maxResult {
 			r.details = append(r.details, ResultDetail{
-				ID: res.id,
 				Latency:   res.duration,
 				Timestamp: res.timestamp,
 				Status:    res.status,

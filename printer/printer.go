@@ -55,10 +55,14 @@ func (rp *ReportPrinter) Print(format string) error {
 
 		return rp.print(buf.String())
 	case "json", "pretty":
+		// fmt.Println(*rp.Report,"\n")
+
 		rep, err := json.Marshal(*rp.Report)
 		if err != nil {
 			return err
 		}
+
+		// fmt.Println(string(rep))
 
 		if format == "pretty" {
 			var out bytes.Buffer
