@@ -133,7 +133,7 @@ func NewRequester(c *RunConfig) (*Requester, error) {
 
 	md := mtd.GetInputType()
 
-	fmt.Printf("%+v",md)
+	// fmt.Printf("%+v",md)
 	payloadMessage := dynamic.NewMessage(md)
 	if payloadMessage == nil {
 		return nil, fmt.Errorf("no input type of method: %s", mtd.GetName())
@@ -198,7 +198,7 @@ func (b *Requester) Run() (*Report, error) {
 	go func() {
 		b.reporter.Run()
 	}()
-	fmt.Println("done--------------")
+	// fmt.Println("done--------------")
 
 	wt := createWorkerTicker(b.config)
 
@@ -279,7 +279,7 @@ func (b *Requester) openClientConns() ([]*grpc.ClientConn, error) {
 		return b.conns, nil
 	}
 
-	fmt.Printf("-----------------<<<<<<<<<<<<%#v",b.config)
+	// fmt.Printf("-----------------<<<<<<<<<<<<%#v",b.config)
 
 	for n := 0; n < b.config.nConns; n++ {
 		c, err := b.newClientConn(true)
@@ -366,7 +366,7 @@ func (b *Requester) newClientConn(withStatsHandler bool) (*grpc.ClientConn, erro
 			hasLog:  b.config.hasLog,
 			log:     b.config.log,
 		}
-		fmt.Printf("ssshhh---------->>>>>><<<<<<<<%#v\n", sh.results)
+		// fmt.Printf("ssshhh---------->>>>>><<<<<<<<%#v\n", sh.results)
 		b.handlers = append(b.handlers, sh)
 
 		opts = append(opts, grpc.WithStatsHandler(sh))

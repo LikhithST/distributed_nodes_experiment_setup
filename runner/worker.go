@@ -154,16 +154,16 @@ func (w *Worker) makeRequest(tv TickValue) error {
 
 	// RPC errors are handled via stats handler
 	if w.mtd.IsClientStreaming() && w.mtd.IsServerStreaming() {
-		fmt.Println("-----------1--------------");
+		// fmt.Println("-----------1--------------");
 		_ = w.makeBidiRequest(&ctx, ctd, msgProvider)
 	} else if w.mtd.IsClientStreaming() {
-		fmt.Println("-----------2--------------");
+		// fmt.Println("-----------2--------------");
 		_ = w.makeClientStreamingRequest(&ctx, ctd, msgProvider)
 	} else if w.mtd.IsServerStreaming() {
-		fmt.Println("-----------3--------------");
+		// fmt.Println("-----------3--------------");
 		_ = w.makeServerStreamingRequest(&ctx, inputs[0])
 	} else {
-		fmt.Println("-----------4--------------");
+		// fmt.Println("-----------4--------------");
 		_ = w.makeUnaryRequest(&ctx, reqMD, inputs[0])
 	}
 
@@ -182,28 +182,9 @@ func (w *Worker) makeUnaryRequest(ctx *context.Context, reqMD *metadata.MD, inpu
 	}
 
 	res, resErr = w.stub.InvokeRpc(*ctx, w.mtd, input, callOptions...)
-	fmt.Printf("%#v\n",w.mtd)
-	fmt.Println("from worker--------------")
-	if res !=nil {
-		fmt.Printf("Response Field1:%T\n", res)
-		json, err := res.(*dynamic.Message).MarshalJSON()
-		fmt.Printf("response json %s %v", json, err)
+	// fmt.Printf("%#v\n",w.mtd)
+	// fmt.Println("from worker--------------")
 
-		// Iterate over the header metadata
-fmt.Println("Header Metadata:")
-fmt.Printf("%T", header)
-for key, values := range header {
-    fmt.Printf("Key: %s\n", key)
-    fmt.Println("Values:")
-    for _, value := range values {
-        fmt.Printf("\t%s\n", value)
-    }
-}
-
-		fmt.Println(resErr)
-		// responseMessage := dynamic.NewMessage(methodDescriptor.GetOutputType())
-
-	}
 
 	if w.config.hasLog {
 		inputData, _ := input.MarshalJSON()

@@ -373,7 +373,7 @@ func main() {
 
 		logger.Debugw("Printing report to "+logPath, "path", logPath)
 	}
-
+	// fmt.Printf("%+v\n", report)
 	p := printer.ReportPrinter{
 		Report: report,
 		Out:    output,

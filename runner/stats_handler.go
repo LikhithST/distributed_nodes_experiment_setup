@@ -3,10 +3,11 @@ package runner
 import (
 	"context"
 	"sync"
+	"strconv"
 	// "log"
 	// "math/rand"
 	"time"
-	"fmt"
+	// "fmt"
 	"google.golang.org/grpc/metadata"
 	// "reflect"
 	// "encoding/json"
@@ -20,7 +21,6 @@ import (
 // StatsHandler is for gRPC stats
 type statsHandler struct {
 	results chan *callResult
-	isHead chan time.Time
 	id     int
 	hasLog bool
 	log    Logger
@@ -101,9 +101,17 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 
 			// Retrieve the header value from the context
 			
-			fmt.Println("------------->>>>>>>>>",ctx.Value("InHeader"))
-
-			c.results <- &callResult{rs.Error, st, duration,time.Unix(int64(ctx.Value("InHeader")),0), rs.EndTime,10,10}
+			// fmt.Printf("------------->>>>>>>>>%T",ctx.Value("InHeader"))
+			// fmt.Println("------------->>>>>>>>>",ctx.Value("InHeader"))
+			var ts time.Time
+			if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
+                // fmt.Println(header.InMetadata["ts"][0])
+				databroker_timestamp, err := strconv.ParseInt(header.InMetadata["ts"][0], 10, 64)
+				if err == nil {
+					ts = time.Unix(databroker_timestamp,0)
+				}
+            }
+			c.results <- &callResult{rs.Error, st, duration, rs.EndTime, ts, 10, 10}
 
 			if c.hasLog {
 				c.log.Debugw("Received RPC Stats",

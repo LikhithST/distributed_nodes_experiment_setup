@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"sort"
 	"time"
-	"fmt"
 )
 
 // Reporter gathers all the results
@@ -190,9 +189,9 @@ func (r *Reporter) Run() {
 
 			
 		}
+		// fmt.Printf("------------------->>>>>ress>>>>%#v\n", res.timestamp)
 	}
-	fmt.Println("running-2-----------------------")
-	// fmt.Printf("------------------->>>>>ress>>>>\n")
+	// fmt.Println("running-2-----------------------")
 	// fmt.Printf("%+v\n", r)
 	r.done <- true
 }
