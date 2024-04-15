@@ -321,7 +321,7 @@ func (w *Worker) makeClientStreamingRequest(ctx *context.Context,
 	close(cancel)
 
 	return nil
-}
+} 
 
 func (w *Worker) makeServerStreamingRequest(ctx *context.Context, input *dynamic.Message) error {
 	var callOptions = []grpc.CallOption{}
