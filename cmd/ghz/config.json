@@ -2,15 +2,7 @@
     "proto": "../../../../ghz-linux-x86_64/proto/kuksa/val/v1/val.proto",
     "call": "kuksa.val.v1.VAL.Set",
     "total": 1,
-    "concurrency": 1,
-    "connections":1,    
-    "concurrency-schedule": "step",
-    "concurrency-start": 5,
-    "concurrency-step": 5,
-    "concurrency-end": 50,
-    "concurrency-step-duration": "5s",
     "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}"},
-    "rps": 2,
     "data": {
         "updates": [
             {

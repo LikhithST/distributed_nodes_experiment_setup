@@ -2,8 +2,10 @@ package runner
 
 import (
 	"context"
-	"sync"
+	"math"
 	"strconv"
+	"sync"
+
 	// "log"
 	// "math/rand"
 	"time"
@@ -21,17 +23,18 @@ import (
 // StatsHandler is for gRPC stats
 type statsHandler struct {
 	results chan *callResult
-	id     int
-	hasLog bool
-	log    Logger
+	id      int
+	hasLog  bool
+	log     Logger
 
 	lock   sync.RWMutex
 	ignore bool
 }
 
 type MutableObject struct {
-    InMetadata metadata.MD // Example mutable field
+	InMetadata metadata.MD // Example mutable field
 }
+
 // HandleConn handle the connection
 func (c *statsHandler) HandleConn(ctx context.Context, cs stats.ConnStats) {
 
@@ -61,26 +64,25 @@ func calculateMemoryPercentage(stat *types.StatsJSON) float64 {
 	return memPercent
 }
 
-
 // HandleRPC implements per-RPC tracing and stats instrumentation.
 func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 	switch rs := rs.(type) {
-		
-	case *stats.InHeader:
-		var headerValue metadata.MD 
-		 // You can access the `InHeader` field from the `s` object to get the received headers.
-		 if rs.Client {
-		ign := false
-		c.lock.RLock()
-		ign = c.ignore
-		c.lock.RUnlock()
-		if !ign {
-			headerValue = rs.Header
 
-			if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
-                header.InMetadata = headerValue
-            }
-		}
+	case *stats.InHeader:
+		var headerValue metadata.MD
+		// You can access the `InHeader` field from the `s` object to get the received headers.
+		if rs.Client {
+			ign := false
+			c.lock.RLock()
+			ign = c.ignore
+			c.lock.RUnlock()
+			if !ign {
+				headerValue = rs.Header
+
+				if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
+					header.InMetadata = headerValue
+				}
+			}
 		}
 
 	case *stats.End:
@@ -100,18 +102,29 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 			}
 
 			// Retrieve the header value from the context
-			
+
 			// fmt.Printf("------------->>>>>>>>>%T",ctx.Value("InHeader"))
 			// fmt.Println("------------->>>>>>>>>",ctx.Value("InHeader"))
-			var ts time.Time
+			var databroker_exit_ts time.Time
+			var databroker_enter_ts time.Time
+			var client_to_broker_ts time.Duration
+			var broker_to_client_ts time.Duration
+			var request_process_time time.Duration
 			if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
-                // fmt.Println(header.InMetadata["ts"][0])
-				databroker_timestamp, err := strconv.ParseInt(header.InMetadata["ts"][0], 10, 64)
-				if err == nil {
-					ts = time.Unix(databroker_timestamp,0)
+				databroker_exit_timestamp, err1 := strconv.ParseInt(header.InMetadata["databroker_exit_ts"][0], 10, 64)
+				databroker_enter_timestamp, err2 := strconv.ParseInt(header.InMetadata["databroker_enter_ts"][0], 10, 64)
+				if err1 == nil && err2 == nil {
+					databroker_exit_ts = time.Unix(int64(math.Abs(float64(databroker_exit_timestamp)/1000000000)), databroker_exit_timestamp%1000000000)
+					databroker_enter_ts = time.Unix(int64(math.Abs(float64(databroker_enter_timestamp)/1000000000)), databroker_enter_timestamp%1000000000)
+					broker_to_client_ts = rs.EndTime.Sub(databroker_exit_ts)
+					client_to_broker_ts = databroker_enter_ts.Sub(rs.BeginTime)
+					request_process_time = databroker_exit_ts.Sub(databroker_enter_ts)
+
 				}
-            }
-			c.results <- &callResult{rs.Error, st, duration, rs.EndTime, ts, 10, 10}
+
+			}
+
+			c.results <- &callResult{rs.Error, st, duration, rs.EndTime, rs.BeginTime, databroker_enter_ts, databroker_exit_ts, client_to_broker_ts, broker_to_client_ts, request_process_time, 10, 10}
 
 			if c.hasLog {
 				c.log.Debugw("Received RPC Stats",
@@ -132,9 +145,8 @@ func (c *statsHandler) Ignore(val bool) {
 
 // TagRPC implements per-RPC context management.
 func (c *statsHandler) TagRPC(ctx context.Context, info *stats.RPCTagInfo) context.Context {
-	
+
 	ctx = context.WithValue(ctx, "InHeader", &MutableObject{})
-	
 
 	return ctx
 }

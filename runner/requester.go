@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"sync"
 	"time"
+
 	// "reflect"
 	"github.com/bojand/ghz/load"
 	"github.com/bojand/ghz/protodesc"
@@ -31,13 +32,18 @@ const maxResult = 1000000
 
 // result of a call
 type callResult struct {
-	err       error
-	status    string
-	duration  time.Duration
-	timestamp time.Time
-	databroker_timestamp time.Time
-	cpu_utilisation float64
-	mem_utilisation float64
+	err                        error
+	status                     string
+	duration                   time.Duration
+	timestamp                  time.Time
+	begin_timestamp            time.Time
+	databroker_enter_timestamp time.Time
+	databroker_exit_timestamp  time.Time
+	client_to_broker_ts        time.Duration
+	broker_to_client_ts        time.Duration
+	request_process_ts         time.Duration
+	cpu_utilisation            float64
+	mem_utilisation            float64
 }
 
 // Requester is used for doing the requests
