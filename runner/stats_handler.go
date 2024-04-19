@@ -114,6 +114,7 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 				databroker_exit_timestamp, err1 := strconv.ParseInt(header.InMetadata["databroker_exit_ts"][0], 10, 64)
 				databroker_enter_timestamp, err2 := strconv.ParseInt(header.InMetadata["databroker_enter_ts"][0], 10, 64)
 				if err1 == nil && err2 == nil {
+
 					databroker_exit_ts = time.Unix(int64(math.Abs(float64(databroker_exit_timestamp)/1000000000)), databroker_exit_timestamp%1000000000)
 					databroker_enter_ts = time.Unix(int64(math.Abs(float64(databroker_enter_timestamp)/1000000000)), databroker_enter_timestamp%1000000000)
 					broker_to_client_ts = rs.EndTime.Sub(databroker_exit_ts)
