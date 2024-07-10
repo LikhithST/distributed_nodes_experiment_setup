@@ -2,20 +2,24 @@ package runner
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"math"
 	"strconv"
 	"sync"
 
-	// "log"
 	// "math/rand"
 	"time"
 	// "fmt"
+
 	"google.golang.org/grpc/metadata"
 	// "reflect"
-	// "encoding/json"
+
 	// "github.com/google/uuid"
 	"github.com/docker/docker/api/types"
+
 	// "github.com/docker/docker/client"
+
 	"google.golang.org/grpc/stats"
 	"google.golang.org/grpc/status"
 )
@@ -29,6 +33,36 @@ type statsHandler struct {
 
 	lock   sync.RWMutex
 	ignore bool
+}
+
+type Value struct {
+	Timestamp time.Time `json:"timestamp"`
+	Float     float64   `json:"float"`
+}
+
+// Define the Metadata struct
+type Metadata struct {
+	StreamResponseTimeNs int64  `json:"streamResponseTimeNs,string"`
+	SubscriptionID       string `json:"subscriptionId"`
+	Description          string `json:"description"`
+}
+
+// Define the Entry struct
+type Entry struct {
+	Path     string   `json:"path"`
+	Value    Value    `json:"value"`
+	Metadata Metadata `json:"metadata"`
+}
+
+// Define the Update struct
+type Update struct {
+	Entry  Entry    `json:"entry"`
+	Fields []string `json:"fields"`
+}
+
+// Define the Response struct
+type Response struct {
+	Updates []Update `json:"updates"`
 }
 
 type MutableObject struct {
@@ -85,6 +119,51 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 			}
 		}
 
+	case *stats.InPayload:
+		// str, _ := json.Marshal(rs)
+		// fmt.Printf("---mm %+v\n", string(str))
+		// fmt.Printf("---mm %+v\n", ctx)
+
+		serverStreamResponseByte, _ := json.Marshal(rs.Payload)
+		// serverStreamResponseBytes := []byte{serverStreamResponseByte[0]}
+		// fmt.Println(string(serverStreamResponseByte))
+		serverStreamResponseByteRaw := json.RawMessage(string(serverStreamResponseByte))
+		var stream_data Response
+		err2 := json.Unmarshal(serverStreamResponseByteRaw, &stream_data)
+		// fmt.Printf("%#v", stream_data.Updates[0].Entry.Metadata.Description)
+		if err2 != nil {
+			fmt.Println("Shut up", err2)
+		}
+		// log.Printf(stream_data.Updates[0].Entry.Metadata.StreamResponseTimeNs)
+		// log.Printf(stream_data.Updates[0].Entry.Metadata.SubscriptionID)
+		// log.Printf("%+v", stream_data.Updates[0].Entry.Value.Float)
+		// StreamResponseTimeNs_tm, err := strconv.ParseInt(stream_data.Updates[0].Entry.Metadata.StreamResponseTimeNs, 10, 64)
+		// if err != nil {
+		// 	panic(err)
+		// }
+
+		// fmt.Printf("-->%+v<--\n", ctx.Value("call_type"))
+		// fmt.Printf("-->%+v<--\n", ctx.Value("metadata"))
+		// fmt.Printf("-->%+v<--\n", ctx.Value("set_id"))
+		// fmt.Printf("-->%+v<--\n", len(stream_data.Updates))
+		// fmt.Printf("-->%+v<--\n", stream_data.Updates[0].Entry.Value.Float)
+		if (ctx.Value("call_type") == "kuksa.val.v1.VAL.Subscribe" && len(stream_data.Updates) > 0 && stream_data.Updates[0].Entry.Value != Value{} && stream_data.Updates[0].Entry.Value.Float != 0) {
+			StreamResponseTimeNs_tm := time.Unix(int64(math.Abs(float64(stream_data.Updates[0].Entry.Metadata.StreamResponseTimeNs)/1000_000_000)), stream_data.Updates[0].Entry.Metadata.StreamResponseTimeNs%1000_000_000)
+			broker_to_client_ts := rs.RecvTime.Sub(StreamResponseTimeNs_tm)
+			if rs.Client {
+				ign := false
+				c.lock.RLock()
+				ign = c.ignore
+				c.lock.RUnlock()
+				if !ign {
+					// msg := rs.Payload.(*dynamic.Message).ConvertTo(proto.Message)
+					// fmt.Printf("----->%+v\n", rs.Payload)
+					c.results <- &callResult{nil, "", ctx.Value("metadata").(string), stream_data.Updates[0].Entry.Metadata.Description, stream_data.Updates[0].Entry.Metadata.SubscriptionID, 0, time.Time{}, time.Time{}, time.Time{}, StreamResponseTimeNs_tm, 0, broker_to_client_ts, 0, 10, 10}
+
+				}
+			}
+		}
+
 	case *stats.End:
 
 		ign := false
@@ -111,21 +190,26 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 			var broker_to_client_ts time.Duration
 			var request_process_time time.Duration
 			if header, ok := ctx.Value("InHeader").(*MutableObject); ok {
-				databroker_exit_timestamp, err1 := strconv.ParseInt(header.InMetadata["databroker_exit_ts"][0], 10, 64)
-				databroker_enter_timestamp, err2 := strconv.ParseInt(header.InMetadata["databroker_enter_ts"][0], 10, 64)
-				if err1 == nil && err2 == nil {
 
-					databroker_exit_ts = time.Unix(int64(math.Abs(float64(databroker_exit_timestamp)/1000000000)), databroker_exit_timestamp%1000000000)
-					databroker_enter_ts = time.Unix(int64(math.Abs(float64(databroker_enter_timestamp)/1000000000)), databroker_enter_timestamp%1000000000)
-					broker_to_client_ts = rs.EndTime.Sub(databroker_exit_ts)
-					client_to_broker_ts = databroker_enter_ts.Sub(rs.BeginTime)
-					request_process_time = databroker_exit_ts.Sub(databroker_enter_ts)
+				if len(header.InMetadata) > 2 {
+					databroker_exit_timestamp, err1 := strconv.ParseInt(header.InMetadata["databroker_exit_ts"][0], 10, 64)
+					databroker_enter_timestamp, err2 := strconv.ParseInt(header.InMetadata["databroker_enter_ts"][0], 10, 64)
+					if err1 == nil && err2 == nil {
 
+						databroker_exit_ts = time.Unix(int64(math.Abs(float64(databroker_exit_timestamp)/1000000000)), databroker_exit_timestamp%1000000000)
+						databroker_enter_ts = time.Unix(int64(math.Abs(float64(databroker_enter_timestamp)/1000000000)), databroker_enter_timestamp%1000000000)
+						broker_to_client_ts = rs.EndTime.Sub(databroker_exit_ts)
+						client_to_broker_ts = databroker_enter_ts.Sub(rs.BeginTime)
+						request_process_time = databroker_exit_ts.Sub(databroker_enter_ts)
+
+					}
 				}
 
 			}
 
-			c.results <- &callResult{rs.Error, st, duration, rs.EndTime, rs.BeginTime, databroker_enter_ts, databroker_exit_ts, client_to_broker_ts, broker_to_client_ts, request_process_time, 10, 10}
+			if ctx.Value("call_type") == "kuksa.val.v1.VAL.Set" {
+				c.results <- &callResult{rs.Error, st, ctx.Value("metadata").(string), ctx.Value("set_id").(string), "set_call", duration, rs.EndTime, rs.BeginTime, databroker_enter_ts, databroker_exit_ts, client_to_broker_ts, broker_to_client_ts, request_process_time, 10, 10}
+			}
 
 			if c.hasLog {
 				c.log.Debugw("Received RPC Stats",

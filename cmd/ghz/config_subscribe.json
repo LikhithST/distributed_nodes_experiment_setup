@@ -1,21 +1,18 @@
 {
-    "proto": "../../../../ghz-linux-x86_64/proto/kuksa/val/v1/val.proto",
+    "proto":  "../proto/kuksa/val/v1/val.proto",
     "call": "kuksa.val.v1.VAL.Subscribe",
-    "total": 1,
-    "concurrency": 1,
-    "concurrency-schedule": "step",
-    "concurrency-start": 5,
-    "concurrency-step": 5,
-    "concurrency-end": 50,
-    "concurrency-step-duration": "5s",
-    "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}"},
-    "rps": 1,
+    "total": 50,
+    "concurrency":6000,
+    "timeout":"70s",
+    "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}", "request_id":"50sub300pub"},
     "data": {
         "entries": [
             {
-                    "path": "Vehicle.Speed",
-                    "view":"10",
-                    "fields":[11]
+                "path": "Vehicle.Speed",
+                "view": "VIEW_ALL",
+                "fields": [
+                    "FIELD_VALUE"
+                ]
             }
         ]
     },

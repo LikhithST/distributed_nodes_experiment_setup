@@ -16,7 +16,15 @@
 *.out
 
 /cmd/ghz/ghz
+/cmd/ghz/myprogram
+/cmd/ghz/json
+/cmd/ghz/pretty
+
+
+
 /cmd/ghz-web/ghz-web
+/cmd/ghz-web/data*
+/cmd/ghz-web/kuksa*
 /cmd/server/server
 /.tmp/
 
