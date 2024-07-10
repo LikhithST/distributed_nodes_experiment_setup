@@ -34,6 +34,9 @@ const maxResult = 1000000
 type callResult struct {
 	err                        error
 	status                     string
+	request_id                 string
+	set_id                     string
+	subscription_id            string
 	duration                   time.Duration
 	timestamp                  time.Time
 	begin_timestamp            time.Time

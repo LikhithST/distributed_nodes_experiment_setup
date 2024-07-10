@@ -1,8 +1,9 @@
 {
-    "proto": "../../../../ghz-linux-x86_64/proto/kuksa/val/v1/val.proto",
+    "proto": "../proto/kuksa/val/v1/val.proto",
     "call": "kuksa.val.v1.VAL.Set",
     "total": 1,
-    "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}"},
+    "rps": 1000,
+    "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}", "request_id":"50sub300pub"},
     "data": {
         "updates": [
             {
@@ -10,16 +11,18 @@
                     "path": "Vehicle.Speed",
                     "value": {
                         "timestamp": null,
-                        "float": 111
+                        "float": 112
                     },
-                    "metadata": {"description":"{{.RequestNumber}}"}
+                    "metadata": {
+                        "description":"{{.RequestNumber}}"
+                    }
                 },
-                "fields": [2]
+                "fields": ["2", "12"]
             }
         ]
     },
     "import-paths": [
         "./"
     ],
-    "host": "0.0.0.0:55555"
+    "host": "192.168.2.71:55555"
 }

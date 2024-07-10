@@ -144,6 +144,9 @@ type ResultDetail struct {
 	Broker_to_client_ts        time.Duration `json:"broker_to_client_ts"`
 	CPU_utilisation            float64       `json:"cpu"`
 	MEM_utilisation            float64       `json:"mem"`
+	Subscription_id            string        `json:"subscription_id"`
+	Request_id                 string        `json:"test_id"`
+	Set_id                     string        `json:"set_id"`
 }
 
 func newReporter(results chan *callResult, c *RunConfig) *Reporter {
@@ -170,7 +173,6 @@ func (r *Reporter) Run() {
 			skipCount++
 			continue
 		}
-
 		errStr := ""
 		r.totalCount++
 		r.totalLatenciesSec += res.duration.Seconds()
@@ -195,6 +197,9 @@ func (r *Reporter) Run() {
 				Broker_to_client_ts:        res.broker_to_client_ts,
 				CPU_utilisation:            res.cpu_utilisation,
 				MEM_utilisation:            res.mem_utilisation,
+				Subscription_id:            res.subscription_id,
+				Request_id:                 res.request_id,
+				Set_id:                     res.set_id,
 			})
 
 		}

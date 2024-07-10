@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"time"
+
 	"github.com/gogo/protobuf/proto"
 	"github.com/jhump/protoreflect/desc"
 	"github.com/jhump/protoreflect/dynamic"
@@ -95,6 +96,14 @@ func (w *Worker) makeRequest(tv TickValue) error {
 	var cancel context.CancelFunc
 
 	if w.config.timeout > 0 {
+		var metadata *map[string]string
+
+		// fmt.Printf("-----%#v", string(w.config.data))
+
+		_ = json.Unmarshal(w.config.metadata, &metadata)
+		ctx = context.WithValue(ctx, "call_type", w.config.call)
+		ctx = context.WithValue(ctx, "metadata", (*metadata)["request_id"])
+		// ctx = context.WithValue(ctx, "set_id", data.Updates[0].Entry.Metadata.Description)
 		ctx, cancel = context.WithTimeout(ctx, w.config.timeout)
 	} else {
 		ctx, cancel = context.WithCancel(ctx)
@@ -154,16 +163,16 @@ func (w *Worker) makeRequest(tv TickValue) error {
 
 	// RPC errors are handled via stats handler
 	if w.mtd.IsClientStreaming() && w.mtd.IsServerStreaming() {
-		// fmt.Println("-----------1--------------");
+		// fmt.Println("-----------1--------------")
 		_ = w.makeBidiRequest(&ctx, ctd, msgProvider)
 	} else if w.mtd.IsClientStreaming() {
-		// fmt.Println("-----------2--------------");
+		// fmt.Println("-----------2--------------")
 		_ = w.makeClientStreamingRequest(&ctx, ctd, msgProvider)
 	} else if w.mtd.IsServerStreaming() {
-		// fmt.Println("-----------3--------------");
+		// fmt.Println("-----------3--------------")
 		_ = w.makeServerStreamingRequest(&ctx, inputs[0])
 	} else {
-		// fmt.Println("-----------4--------------");
+		// fmt.Println("-----------4--------------")
 		_ = w.makeUnaryRequest(&ctx, reqMD, inputs[0])
 	}
 
@@ -174,17 +183,22 @@ func (w *Worker) makeUnaryRequest(ctx *context.Context, reqMD *metadata.MD, inpu
 	var res proto.Message
 	var resErr error
 	var callOptions = []grpc.CallOption{}
-	var header, trailer metadata.MD 
+	var header, trailer metadata.MD
 	callOptions = append(callOptions, grpc.Header(&header))
 	callOptions = append(callOptions, grpc.Trailer(&trailer))
 	if w.config.enableCompression {
 		callOptions = append(callOptions, grpc.UseCompressor(gzip.Name))
 	}
+	var data Response
+	payload_dataByte, _ := json.Marshal(input)
+	payload_dataRaw := json.RawMessage(string(payload_dataByte))
+	_ = json.Unmarshal(payload_dataRaw, &data)
+	if len(data.Updates) > 0 {
+
+		*ctx = context.WithValue(*ctx, "set_id", data.Updates[0].Entry.Metadata.Description)
+	}
 
 	res, resErr = w.stub.InvokeRpc(*ctx, w.mtd, input, callOptions...)
-	// fmt.Printf("%#v\n",w.mtd)
-	// fmt.Println("from worker--------------")
-
 
 	if w.config.hasLog {
 		inputData, _ := input.MarshalJSON()
@@ -321,7 +335,7 @@ func (w *Worker) makeClientStreamingRequest(ctx *context.Context,
 	close(cancel)
 
 	return nil
-} 
+}
 
 func (w *Worker) makeServerStreamingRequest(ctx *context.Context, input *dynamic.Message) error {
 	var callOptions = []grpc.CallOption{}
