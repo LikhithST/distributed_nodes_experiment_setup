@@ -5,7 +5,7 @@
 ### To start the database
 
 `cd ghz-custom/cmd/ghz-web`  
-`chmod +x ./ghz-web`
+`chmod +x ./ghz-web`  
 `sudo ./ghz-web`
 
 ### To make grpc calls  
