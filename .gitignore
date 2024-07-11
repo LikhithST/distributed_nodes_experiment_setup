@@ -22,7 +22,7 @@
 
 
 
-/cmd/ghz-web/ghz-web
+
 /cmd/ghz-web/data*
 /cmd/ghz-web/kuksa*
 /cmd/server/server
