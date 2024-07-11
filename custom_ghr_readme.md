@@ -4,12 +4,12 @@
 
 ### To start the database
 
-`cd cmd/ghz-web`  
+`cd ghz-custom/cmd/ghz-web`  
 `sudo ./ghz-web`
 
 ### To make grpc calls  
 
-`cd cmd/ghz`  
+`cd ghz-custom/cmd/ghz`  
 
 #### for publish call  
 `./ghz --insecure --config=config.json`  
