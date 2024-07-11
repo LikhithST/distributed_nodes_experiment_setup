@@ -17,7 +17,7 @@ package kuksa.val.v1;
 
 option go_package = "kuksa/val/v1";
 
-import "kuksa/val/v1/types.proto";
+import "./types.proto";
 
 // Note on authorization:
 // Tokens (auth-token or auth-uuid) are sent as (GRPC / http2) metadata.

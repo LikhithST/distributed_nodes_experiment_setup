@@ -1,5 +1,5 @@
 {
-    "proto": "../../../../ghz-linux-x86_64/proto/kuksa/val/v1/val.proto",
+    "proto": "../proto/kuksa/val/v1/val.proto",
     "call": "kuksa.val.v1.VAL.Subscribe",
     "total": 50,
     "concurrency": 1,

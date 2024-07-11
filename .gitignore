@@ -15,7 +15,7 @@
 
 *.out
 
-/cmd/ghz/ghz
+
 /cmd/ghz/myprogram
 /cmd/ghz/json
 /cmd/ghz/pretty
