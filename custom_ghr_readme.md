@@ -45,6 +45,12 @@ chmod +x ./ghz
 ```sh
 ./ghz --insecure --config=config.json
 ```
+
+### Subscribe Call
+```sh
+./ghz --insecure --config=config_subscribe.json json
+```
+
 ### Publish Call (with Database)
 ```sh
 ./ghz --insecure --config=config.json -O json | http POST localhost:80/api/ingest

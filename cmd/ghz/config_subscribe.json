@@ -3,7 +3,7 @@
     "call": "kuksa.val.v1.VAL.Subscribe",
     "total": 50,
     "concurrency":6000,
-    "timeout":"70s",
+    "timeout":"30s",
     "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}", "request_id":"50sub300pub"},
     "data": {
         "entries": [
