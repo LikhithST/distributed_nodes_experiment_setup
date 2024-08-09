@@ -146,6 +146,8 @@ execute below command to do data extraction
 
 
 
+## copy report locally
 
+```scp nuc2rng@10.163.13.248:///home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web/latency_and_mean_stats.xlsx .  ```
 
 
