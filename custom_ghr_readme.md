@@ -130,13 +130,17 @@ starting ghz in location : /home/pi3rng/kuksa/ghz-custom/cmd/ghz
 
 #### merging dbs from both pub and sub machines
 
+execute following shell script from /home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web folder  : /home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web/copy-ghz-dbs-from-clients.sh
 ```
-scp pi3rng@192.168.10.33:///home/pi3rng/kuksa/ghz-custom/cmd/ghz-web/data/ghz.db ghz-subscriber-info.db
-scp pi2rng@192.168.10.22:///home/pi2rng/kuksa/ghz-custom/cmd/ghz-web/data/ghz.db ghz-publisher-info.db
+scp pi3rng@192.168.10.33:///home/pi3rng/kuksa/ghz-custom/cmd/ghz-web/data/ghz.db ./data/ghz-subscriber-info.db
+scp pi2rng@192.168.10.22:///home/pi2rng/kuksa/ghz-custom/cmd/ghz-web/data/ghz.db ./data/ghz-publisher-info.db
 ```
 
-```sudo docker run -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 /work/data/db_merger.py /work/data/ghz-subscriber-info.db /work/data/ghz-publisher-info.db /work/data/new.db```
+execute below command to do merging
 
+```sudo docker run -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 /work/data/db_merger.py /work/data/ghz-subscriber-info.db /work/data/ghz-publisher-info.db /work/data/ghz.db```
+
+execute below command to do data extraction
 
 ```sudo docker run  -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 "/work/sqlite-latency-extractor_XLS.py"```
 
