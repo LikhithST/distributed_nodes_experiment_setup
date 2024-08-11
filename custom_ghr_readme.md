@@ -151,7 +151,7 @@ scp pi2rng@192.168.10.22:///home/pi2rng/kuksa/ghz-custom/cmd/ghz-web/data/ghz.db
 
 execute below command to do merging
 
-```sudo docker run -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 /work/data/db_merger.py /work/data/ghz-subscriber-info.db /work/data/ghz-publisher-info.db /work/data/ghz.db```
+```sudo docker run -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 /work/db_merger.py /work/data/ghz-subscriber-info.db /work/data/ghz-publisher-info.db /work/data/ghz.db```
 
 execute below command to do data extraction
 
