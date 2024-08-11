@@ -1,54 +1,93 @@
+import sqlite3
+import argparse
 
-##  building ghz for arm64 architecture
+def create_table_if_not_exists(cursor):
+    # Create the table in the new database if it does not exist
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS details (
+        id INTEGER,
+        created_at DATETIME,
+        updated_at DATETIME,
+        report_id INTEGER,
+        timestamp DATETIME,
+        latency BIGINT,
+        error VARCHAR(255),
+        status VARCHAR(255),
+        begin_timestamp DATETIME,
+        databroker_enter_timestamp DATETIME,
+        databroker_exit_timestamp DATETIME,
+        request_process_ts BIGINT,
+        client_to_broker_ts BIGINT,
+        broker_to_client_ts BIGINT,
+        cpu_utilisation REAL,
+        mem_utilisation REAL,
+        subscription_id VARCHAR(255),
+        request_id VARCHAR(255),
+        set_id VARCHAR(255)
+    );
+    """)
 
-use below docker command and inject the custom-ghz repo as a volume inside the golang docker container
+def combine_databases(main_db_path, attach_db_path, new_db_path):
+    # Connect to the new database (create it if it doesn't exist)
+    new_conn = sqlite3.connect(new_db_path)
+    new_cursor = new_conn.cursor()
 
- ```docker run -it -v $PWD:/go/work golang:1.20-alpine ```
- 
- traverse to the cmd/ghz folder and execute below command
- 
- ```go build . ```
+    # Create the table in the new database
+    create_table_if_not_exists(new_cursor)
 
-## Commands used for testing on L4S testbed
-### structure of L4S testbed
-![image](https://media.github.boschdevcloud.com/user/2955/files/265fee04-9fa0-4986-91ee-2b3efdcce498)
+    # Attach the original databases
+    new_cursor.execute(f"ATTACH '{main_db_path}' AS main_db")
+    new_cursor.execute(f"ATTACH '{attach_db_path}' AS attach_db")
 
-### nuc2rng (acting as a vehicle computer)
+    # Copy data from the main database to the new database
+    new_cursor.execute("""
+    INSERT INTO details (
+        created_at, updated_at, report_id, timestamp, latency, error, status,
+        begin_timestamp, databroker_enter_timestamp, databroker_exit_timestamp,
+        request_process_ts, client_to_broker_ts, broker_to_client_ts,
+        cpu_utilisation, mem_utilisation, subscription_id, request_id, set_id
+    )
+    SELECT
+        created_at, updated_at, report_id, timestamp, latency, error, status,
+        begin_timestamp, databroker_enter_timestamp, databroker_exit_timestamp,
+        request_process_ts, client_to_broker_ts, broker_to_client_ts,
+        cpu_utilisation, mem_utilisation, subscription_id, request_id, set_id
+    FROM main_db.details;
+    """)
 
-#### Starting ghz-web to collect monitoring data at (/home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web)
+    # Copy data from the attach database to the new database
+    new_cursor.execute("""
+    INSERT INTO details (
+        created_at, updated_at, report_id, timestamp, latency, error, status,
+        begin_timestamp, databroker_enter_timestamp, databroker_exit_timestamp,
+        request_process_ts, client_to_broker_ts, broker_to_client_ts,
+        cpu_utilisation, mem_utilisation, subscription_id, request_id, set_id
+    )
+    SELECT
+        created_at, updated_at, report_id, timestamp, latency, error, status,
+        begin_timestamp, databroker_enter_timestamp, databroker_exit_timestamp,
+        request_process_ts, client_to_broker_ts, broker_to_client_ts,
+        cpu_utilisation, mem_utilisation, subscription_id, request_id, set_id
+    FROM attach_db.details;
+    """)
 
- ```sudo ./ghz-web -config config.yaml ```
- 
- config.yaml content
- 
- ```
- server:
-  port: 9999
-  ```
-  #### starting KUKSA databroker
-  
-  starting KUKSA at location: /home/nuc2rng/kuksa/likhith-kuksa-l4s/kuksa-databroker  
+    # Commit the changes
+    new_conn.commit()
 
-```docker compose up kuksa-databroker  ```
+    # Detach the databases
+    new_cursor.execute("DETACH DATABASE main_db")
+    new_cursor.execute("DETACH DATABASE attach_db")
 
-### pi2rng acting as a publisher
+    # Close the connections
+    new_conn.close()
 
-starting ghz in location : /home/pi2rng/kuksa/ghz-custom/cmd/ghz
+if __name__ == "__main__":
+    # Set up command-line argument parsing
+    parser = argparse.ArgumentParser(description="Combine two SQLite databases into a new database.")
+    parser.add_argument('main_db', help="Path to the main database (e.g., databases/main.db)")
+    parser.add_argument('attach_db', help="Path to the database to attach (e.g., databases/attach.db)")
+    parser.add_argument('new_db', help="Path to the new database (e.g., databases/new_combined.db)")
+    args = parser.parse_args()
 
-```./ghz --insecure --config=config.json -O json | http POST 192.168.10.20:9999/api/ingest```
-
-
-### pi3rng acting as a subscriber
-
-starting ghz in location : /home/pi3rng/kuksa/ghz-custom/cmd/ghz
-
-```./ghz --insecure --config=config_subscribe.json -O json | http POST 192.168.10.20:9999/api/ingest```
-
-### generation of latency report from the ghz.db (containing monitoring info) in the nuc2rng folder
-
-```sudo docker run  -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 "/work/sqlite-latency-extractor_XLS.py"```
-
-```code```
-
-
-
+    # Run the combine function
+    combine_databases(args.main_db, args.attach_db, args.new_db)
