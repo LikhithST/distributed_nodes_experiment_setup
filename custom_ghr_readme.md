@@ -99,7 +99,9 @@ use Docker container for building ghz-web as it requires several dependencies
 
 from the root folder (/go/work/ghz-custom) execute the below command
 
- ```go build -x -buildvcs=false -ldflags="-s -w -X 'main.version=$(git rev-parse --abbrev-ref HEAD)' -X 'main.commit=$(git rev-parse HEAD)' -X 'main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" -o ./dist/${TARGET} ./cmd/ghz-web/... ```
+ ```apt-get install libc6 ```
+
+ ```CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -x -buildvcs=false -a -ldflags="-extldflags '-static' -s -w -X 'main.version=$(git rev-parse --abbrev-ref HEAD)' -X 'main.commit=$(git rev-parse HEAD)' -X 'main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" -o ./dist/ghz-web-custom-arm ./cmd/ghz-web/... ```
 
 
 ## Commands used for testing on L4S testbed
