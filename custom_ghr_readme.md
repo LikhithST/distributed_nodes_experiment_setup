@@ -91,6 +91,17 @@ use below docker command and inject the custom-ghz repo as a volume inside the g
  
  ```go build . ```
 
+## building ghz-web for arm64 architecture
+
+ ```docker run -it -v $PWD:/go/work golang:1.20```  
+
+use Docker container for building ghz-web as it requires several dependencies
+
+from the root folder (/go/work/ghz-custom) execute the below command
+
+ ```go build -x -buildvcs=false -ldflags="-s -w -X 'main.version=$(git rev-parse --abbrev-ref HEAD)' -X 'main.commit=$(git rev-parse HEAD)' -X 'main.date=$(date -u +%Y-%m-%dT%H:%M:%SZ)'" -o ./dist/${TARGET} ./cmd/ghz-web/... ```
+
+
 ## Commands used for testing on L4S testbed
 ### structure of L4S testbed
 ![image](https://media.github.boschdevcloud.com/user/2955/files/265fee04-9fa0-4986-91ee-2b3efdcce498)
