@@ -163,4 +163,12 @@ execute below command to do data extraction
 
 ```scp nuc2rng@10.163.13.248:///home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web/latency_and_mean_stats.xlsx .  ```
 
+## graph generator
+
+execute below command to do graph generator in "ghz-web" folder
+
+```sudo docker run  -v $PWD:/work --entrypoint "/usr/local/bin/python3" rekocd/python-pandas:3.12.0 "/work/graph-generator-multiple-files.py"```
+
+
+
 
