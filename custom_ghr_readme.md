@@ -14,7 +14,10 @@ A repository for managing and making gRPC calls using the `ghz` tool.
 - [Sample Config-files Structure](#sample-config-files-structure)
 - [Metadata used to monitor latency](#metadata-used-to-monitor-latency)
 - [building ghz for arm64 architecture](#building-ghz-for-arm64-architecture)
-- [Starting ghz-web to collect monitoring data](#Starting-ghz-web-to-collect-monitoring-data-at-(/home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web))
+- [building ghz-web for arm64 architecture](#building-ghz-web-for-arm64-architecture)
+- [Commands used for testing on L4S testbed](#commands-used-for-testing-on-L4S-testbed)
+- [copy report locally](#copy-report-locally)
+- [graph generator](#graph-sgenerator)
 ## Getting Started
 
 ### Prerequisites
@@ -85,7 +88,7 @@ chmod +x ./ghz
 
 Note: The combination of `request_id` and `description` forms a unique id for identifying a particular publish call in a given test.
 
-### Metadata used to monitor latency
+## Metadata used to monitor latency
 <img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/7387d35e-1172-406e-bcd9-364ac496e4f0">
 
 - latency related metadata for publish call is recieved in the metadata of Http respone.
