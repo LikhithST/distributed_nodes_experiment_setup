@@ -12,6 +12,9 @@ A repository for managing and making gRPC calls using the `ghz` tool.
   - [Publish Call](#publish-call)
   - [Subscribe Call](#subscribe-call)
 - [Sample Config-files Structure](#sample-config-files-structure)
+- [Metadata used to monitor latency](#metadata-used-to-monitor-latency)
+- [building ghz for arm64 architecture](#building-ghz-for-arm64-architecture)
+- [Starting ghz-web to collect monitoring data](#Starting-ghz-web-to-collect-monitoring-data-at-(/home/nuc2rng/kuksa/likhith-kuksa-l4s/ghz-custom/cmd/ghz-web))
 ## Getting Started
 
 ### Prerequisites
