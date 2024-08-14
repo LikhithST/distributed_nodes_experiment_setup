@@ -89,10 +89,15 @@ chmod +x ./ghz
 Note: The combination of `request_id` and `description` forms a unique id for identifying a particular publish call in a given test.
 
 ## Metadata used to monitor latency
+
 <img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/7387d35e-1172-406e-bcd9-364ac496e4f0">
 
 - latency related metadata for publish call is recieved in the metadata of Http respone.
 - latency related metadata for subscribe call is received within the payload of the subscription response.
+
+## Pictorial representation of end to end latency calculation
+
+<img width="1157" alt="metadata_capture" src="https://media.github.boschdevcloud.com/user/46206/files/da13d82b-56a1-4b2b-a366-d8eaa7cc9980">
 
 ##  building ghz for arm64 architecture
 
