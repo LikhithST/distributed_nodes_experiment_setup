@@ -13,12 +13,13 @@ A repository for managing and making gRPC calls using the `ghz` tool.
   - [Subscribe Call](#subscribe-call)
 - [Sample Config-files Structure](#sample-config-files-structure)
 - [Metadata used to monitor latency](#metadata-used-to-monitor-latency)
+- [ Pictorial representation of end to end latency calculation](#pictorial-representation-of-end-to-end-latency-calculation)
 - [building ghz for arm64 architecture](#building-ghz-for-arm64-architecture)
 - [building ghz-web for arm64 architecture](#building-ghz-web-for-arm64-architecture)
 - [Commands used for testing on L4S testbed](#commands-used-for-testing-on-L4S-testbed)
 - [copy report locally](#copy-report-locally)
-- [graph generator](#graph-sgenerator)
-- [ Pictorial representation of end to end latency calculation](#pictorial-representation-of-end-to-end-latency-calculation)
+- [graph generator](#graph-generator)
+
 
 
 ## Getting Started
