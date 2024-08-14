@@ -72,11 +72,9 @@ chmod +x ./ghz
     </ol>
   </div>
   <div style="float: right; width: 45%;">
-    <img src="Images/publish.JPG" alt="Publish Config" width="100%">
-    ![publish](https://media.github.boschdevcloud.com/user/46206/files/49a873c1-0896-4250-8238-4ea36bc66dc0)
+    <img src="https://media.github.boschdevcloud.com/user/46206/files/49a873c1-0896-4250-8238-4ea36bc66dc0" alt="Publish Config" width="100%">
     <br>
-    <img src="Images/subscribe.JPG" alt="Subscribe Config" width="100%">
-    ![subscribe](https://media.github.boschdevcloud.com/user/46206/files/e4c4d7a0-5e2e-4de8-9751-59aaac5e207f)
+    <img src="[Images/subscribe.JPG](https://media.github.boschdevcloud.com/user/46206/files/e4c4d7a0-5e2e-4de8-9751-59aaac5e207f)" alt="Subscribe Config" width="100%">
   </div>
   <div style="clear: both;"></div>
 </div>
@@ -85,8 +83,7 @@ chmod +x ./ghz
 Note: The combination of `request_id` and `description` forms a unique id for identifying a particular publish call in a given test.
 
 ## metadata used to monitor latency
-
-<img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/3a301d57-98db-40df-a83d-c066177c2316">
+<img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/7387d35e-1172-406e-bcd9-364ac496e4f0">
 
 - latency related metadata for publish call is recieved in the metadata of Http respone.
 - latency related metadata for subscribe call is received within the payload of the subscription response.
