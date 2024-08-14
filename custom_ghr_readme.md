@@ -73,13 +73,23 @@ chmod +x ./ghz
   </div>
   <div style="float: right; width: 45%;">
     <img src="Images/publish.JPG" alt="Publish Config" width="100%">
+    ![publish](https://media.github.boschdevcloud.com/user/46206/files/49a873c1-0896-4250-8238-4ea36bc66dc0)
     <br>
     <img src="Images/subscribe.JPG" alt="Subscribe Config" width="100%">
+    ![subscribe](https://media.github.boschdevcloud.com/user/46206/files/e4c4d7a0-5e2e-4de8-9751-59aaac5e207f)
   </div>
   <div style="clear: both;"></div>
 </div>
 
+
 Note: The combination of `request_id` and `description` forms a unique id for identifying a particular publish call in a given test.
+
+## metadata used to monitor latency
+
+<img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/3a301d57-98db-40df-a83d-c066177c2316">
+
+- latency related metadata for publish call is recieved in the metadata of Http respone.
+- latency related metadata for subscribe call is received within the payload of the subscription response.
 
 ##  building ghz for arm64 architecture
 
