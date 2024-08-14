@@ -74,7 +74,7 @@ chmod +x ./ghz
   <div style="float: right; width: 45%;">
     <img src="https://media.github.boschdevcloud.com/user/46206/files/49a873c1-0896-4250-8238-4ea36bc66dc0" alt="Publish Config" width="100%">
     <br>
-    <img src="[Images/subscribe.JPG](https://media.github.boschdevcloud.com/user/46206/files/e4c4d7a0-5e2e-4de8-9751-59aaac5e207f)" alt="Subscribe Config" width="100%">
+    <img src="https://media.github.boschdevcloud.com/user/46206/files/e4c4d7a0-5e2e-4de8-9751-59aaac5e207f" alt="Subscribe Config" width="100%">
   </div>
   <div style="clear: both;"></div>
 </div>
