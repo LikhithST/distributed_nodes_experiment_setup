@@ -18,6 +18,9 @@ A repository for managing and making gRPC calls using the `ghz` tool.
 - [Commands used for testing on L4S testbed](#commands-used-for-testing-on-L4S-testbed)
 - [copy report locally](#copy-report-locally)
 - [graph generator](#graph-sgenerator)
+- [ Pictorial representation of end to end latency calculation](#pictorial-representation-of-end-to-end-latency-calculation)
+
+
 ## Getting Started
 
 ### Prerequisites
