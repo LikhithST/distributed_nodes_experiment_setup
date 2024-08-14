@@ -82,7 +82,7 @@ chmod +x ./ghz
 
 Note: The combination of `request_id` and `description` forms a unique id for identifying a particular publish call in a given test.
 
-## metadata used to monitor latency
+### Metadata used to monitor latency
 <img width="1466" alt="kuksa_set_subscribe_postman" src="https://media.github.boschdevcloud.com/user/46206/files/7387d35e-1172-406e-bcd9-364ac496e4f0">
 
 - latency related metadata for publish call is recieved in the metadata of Http respone.
