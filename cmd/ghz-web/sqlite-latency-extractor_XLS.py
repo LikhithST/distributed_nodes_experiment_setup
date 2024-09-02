@@ -2,6 +2,15 @@ import sqlite3
 import pandas as pd
 from datetime import datetime, timedelta
 
+# Create an empty DataFrame
+empty_df = pd.DataFrame()
+
+# Save the empty DataFrame to an Excel file
+file_path = "/work/latency_and_mean_stats.xlsx"
+empty_df.to_excel(file_path, index=False)
+
+print(f"Empty Excel file created at: {file_path}")
+
 def calculate_latency_microseconds(start_time_str, additional_time_ns, time_diffs_ns, additional_nanoseconds):
     # Convert the start time to a datetime object
     start_time = datetime.fromisoformat(start_time_str)
@@ -33,7 +42,7 @@ def calculate_latency_microseconds(start_time_str, additional_time_ns, time_diff
     return latency_microseconds
 
 # Connect to the SQLite database
-conn = sqlite3.connect('./data/ghz.db')
+conn = sqlite3.connect('/work/data/ghz.db')
 cursor = conn.cursor()
 
 # Load data from the "details" table into a DataFrame
@@ -96,7 +105,7 @@ for request_id, group in grouped_results_df:
     # empty_col_df = pd.DataFrame({'---': [None] * len(group_avg)})
     # group_df = pd.concat([group, empty_col_df, group_avg], axis=1)
     # Create a filename for the current group
-    filename = f"latency_and_mean_stats.xlsx"
+    filename = f"/work/latency_and_mean_stats.xlsx"
     
     # Create Excel writer object for the current file
     with pd.ExcelWriter(filename, mode="a") as writer:
@@ -109,4 +118,4 @@ for request_id, group in grouped_results_df:
 # grouped_df = grouped_df[grouped_df["latency_microseconds"]>0]
 # grouped_df.to_csv('latency_results.csv', index=False)
 
-print("Results have been written to latency_results.csv")
+print("Results have been written to latency_results.xls")
