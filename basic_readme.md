@@ -110,7 +110,7 @@ cd cmd/ghz-web
 
 # open in vscode in devcontainer
 
-python sqlite-latency-extractor_XLS.py
+python sqlite-latency-extractor-dev.py
 
 # This generates a file named latency_and_mean_stats.xlsx 
 ```
