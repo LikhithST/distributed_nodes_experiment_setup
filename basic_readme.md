@@ -68,7 +68,7 @@ chmod +x ./ghz
 
 ### Subscribe Call (with Database)
 ```sh
-./ghz --insecure --config=config_subscribe.json json | http POST localhost:80/api/ingest
+./ghz --insecure --config=config_subscribe.json -O json | http POST localhost:80/api/ingest
 ```
 
 ## Sample Config-files Structure
