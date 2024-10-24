@@ -36,7 +36,7 @@ Before you begin, ensure you have met the following requirements:
 To clone the repository, run:
 
 ```sh
-git clone https://github.boschdevcloud.com/SAI1RNG/ghz-custom.git -b feature/main
+git clone https://github.boschdevcloud.com/SAI1RNG/ghz-custom.git -b main
 ```
 
 ## Starting the Database
