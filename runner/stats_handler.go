@@ -145,6 +145,7 @@ func (c *statsHandler) HandleRPC(ctx context.Context, rs stats.RPCStats) {
 		// fmt.Printf("-->%+v<--\n", ctx.Value("call_type"))
 		// fmt.Printf("-->%+v<--\n", ctx.Value("metadata"))
 		// fmt.Printf("-->%+v<--\n", ctx.Value("set_id"))
+		fmt.Printf("-->%+v<--\n", stream_data.Updates[0])
 		// fmt.Printf("-->%+v<--\n", len(stream_data.Updates))
 		// fmt.Printf("-->%+v<--\n", stream_data.Updates[0].Entry.Value.Float)
 		if (ctx.Value("call_type") == "kuksa.val.v1.VAL.Subscribe" && len(stream_data.Updates) > 0 && stream_data.Updates[0].Entry.Value != Value{} && stream_data.Updates[0].Entry.Value.Float != 0) {

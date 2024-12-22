@@ -1,7 +1,7 @@
 {
     "proto":  "../proto/kuksa/val/v1/val.proto",
     "call": "kuksa.val.v1.VAL.Subscribe",
-    "total": 50,
+    "total": 1,
     "concurrency":6000,
     "timeout":"30s",
     "metadata" : {"trace_id":"{{.RequestNumber}}", "timestamp":"{{.TimestampUnix}}", "request_id":"50sub300pub"},
@@ -19,5 +19,5 @@
     "import-paths": [
         "./"
     ],
-    "host": "0.0.0.0:55555"
+    "host": "127.0.0.1:55555"
 }

@@ -59,6 +59,10 @@ message Datapoint {
   }
 }
 
+message MetadataMap {
+  map<string, string> headers = 1;
+}
+
 message Metadata {
   // Data type
   // The VSS data type of the entry (i.e. the value, min, max etc).
@@ -92,6 +96,8 @@ message Metadata {
   // Restrict which values are allowed.
   // Only restrictions matching the DataType {datatype} above are valid.
   ValueRestriction value_restriction = 17;  // [field: FIELD_METADATA_VALUE_RESTRICTION]
+
+  optional MetadataMap otel_context = 18;
 
   // Entry type specific metadata
   oneof entry_specific {
